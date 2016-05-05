@@ -1,0 +1,48 @@
+---
+
+# | ............................................................................
+# | ### Config VirtualBox VM
+# | ............................................................................
+
+vms:
+  - name               : Ubuntu-Trusty64
+    box                : ubuntu/trusty64
+    box_check_update   : false
+    ram                : 1028
+    cpus               : 1
+
+  # | ······ Defining Netword
+    network :
+      ip_private       : 10.0.0.70
+      ip_public        : 192.168.0.70
+      bridge           : 'eth0'
+
+  # | ······ Defining a Forwarded Port
+    ports :
+      - guest          : 3000
+        host           : 3000
+
+      # - guest          : 80
+      #   host           : 8080
+
+  # | ······ Config Synced folders
+    syncDir :
+      - host           : share
+        guest          : /home/vagrant/share
+        dmode          : 766
+        fmode          : 766
+
+      # - host           : www
+      #   guest          : /home/vagrant/www
+      #   owner          : www-data
+      #   group          : www-data
+      #   dmode          : 775
+      #   fmode          : 775
+
+  # | ······ GUI
+      # gui              : true
+
+  # | ······ Bash provision
+      # bash             : bash/init.sh
+
+# ..............................................................................
