@@ -52,7 +52,7 @@ There are one configuration files ```CONFIG.yml```
   > **./CONFIG.yaml**
 
 ```yaml
-- name               : vag-wordpress
+- name               : Ubuntu-Trusty64
   box                : ubuntu/trusty64
   box_check_update   : false
   ram                : 1028
@@ -68,8 +68,8 @@ ports           :
   - guest       : 3000
     host        : 3000
 
-  - guest       : 80
-    host        : 8080
+  # - guest       : 80
+  #   host        : 8080
 ```
 
 #### Config Synced folders
@@ -77,14 +77,16 @@ ports           :
   > **./CONFIG.yaml**
 
 ```yaml
-  syncDir         :
-    - host        : share
-      guest       : /home/vagrant/share
+syncDir :
+  - host           : share
+    guest          : /home/vagrant/share
+    dmode          : 766
+    fmode          : 766
 
-    - host        : www
-      guest       : /home/vagrant/www
-      owner       : vagrant
-      group       : vagrant
-      dmode       : 775
-      fmode       : 775
+  # - host           : www
+  #   guest          : /home/vagrant/www
+  #   owner          : www-data
+  #   group          : www-data
+  #   dmode          : 775
+  #   fmode          : 775
 ```
