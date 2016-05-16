@@ -11,13 +11,13 @@ vms:
     ram                : 1028
     cpus               : 1
 
-  # | ······ Defining Netword
+    # | ······ Defining Netword
     network :
       ip_private       : 10.0.0.70
-      ip_public        : 192.168.0.70
-      bridge           : 'eth0'
+      # ip_public        : 192.168.0.70
+      # bridge           : 'eth0'
 
-  # | ······ Defining a Forwarded Port
+    # | ······ Defining a Forwarded Port
     ports :
       - guest          : 3000
         host           : 3000
@@ -25,7 +25,7 @@ vms:
       # - guest          : 80
       #   host           : 8080
 
-  # | ······ Config Synced folders
+    # | ······ Config Synced folders
     syncDir :
       - host           : share
         guest          : /home/vagrant/share
@@ -39,10 +39,10 @@ vms:
       #   dmode          : 775
       #   fmode          : 775
 
-  # | ······ GUI
-      # gui              : true
+    # | ······ GUI
+    # gui   : true
 
-  # | ······ Bash provision
-      # bash             : bash/init.sh
+    # | ······ Bash provision
+    # bash  : bash/init.sh
 
 # ..............................................................................
