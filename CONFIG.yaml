@@ -7,6 +7,7 @@
 vms:
   - name               : Ubuntu-Trusty64
     box                : ubuntu/trusty64
+    # box_version        : 2.2.9
     box_check_update   : false
     ram                : 1028
     cpus               : 1
@@ -14,8 +15,8 @@ vms:
     # | ······ Defining Netword
     network :
       ip_private       : 10.0.0.70
-      # ip_public        : 192.168.0.70
-      # bridge           : 'eth0'
+      ip_public        : 192.168.0.70
+      bridge           : 'eth0'
 
     # | ······ Defining a Forwarded Port
     ports :

@@ -16,6 +16,18 @@ dir = File.dirname(File.expand_path(__FILE__))
 # |
 servers       = YAML.load_file("#{dir}/CONFIG.yaml")
 
+# playbook_file = YAML.load_file("#{dir}/config.ansible.yml")
+
+# |
+# | Set values for message
+# |
+$mysql_user   = servers['mysqlUser']
+$mysql_pass   = servers['mysqlPass']
+$db_name      = servers['dbName']
+$db_user      = servers['dbUser']
+$db_pass      = servers['dbPass']
+$wpDomain     = servers['wpDomain']
+
 # | ············································································
 # | Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 # | ············································································
@@ -25,62 +37,66 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     servers["vms"].each do |server|
         config.vm.define server["name"] do |srv|
 
-          # |
-          # | :::::: Box
-          # |
-          srv.vm.box = server["box"]
 
-          if server["box_check_update"]
-              srv.vm.box_check_update = server["box_check_update"]
-          end
+            # |
+            # | :::::: Box
+            # |
+            srv.vm.box = server["box"]
 
-          # |
-          # | :::::: Networdk
-          # |
+            if server["box_version"]
+                srv.vm.box_version = server["box_version"]
+            end
 
-          if server["network"]["ip_private"]
-            srv.vm.network "private_network", ip: server["network"]["ip_private"]
-          end
+            if server["box_check_update"]
+                srv.vm.box_check_update = server["box_check_update"]
+            end
 
-          if server["network"]["ip_public"] && server["network"]["bridge"]
-            srv.vm.network "public_network", ip: server["network"]["ip_public"], :bridge => server["network"]["bridge"]
-          end
+            # |
+            # | :::::: Networdk
+            # |
 
-          # |
-          # | :::::: Ports forwarded
-          # |
+            if server["network"]["ip_private"]
+                srv.vm.network "private_network", ip: server["network"]["ip_private"]
+            end
 
-          if server["ports"]
-              server['ports'].each do |ports|
-                  srv.vm.network "forwarded_port",
-                      guest: ports["guest"],
-                      host: ports["host"],
-                      auto_correct: true
-              end
-          end
+            if server["network"]["ip_public"] && server["network"]["bridge"]
+                srv.vm.network "public_network", ip: server["network"]["ip_public"], :bridge => server["network"]["bridge"]
+            end
 
-          # |
-          # | :::::: Folder Sync
-          # |
+            # |
+            # | :::::: Ports forwarded
+            # |
 
-          if server["syncDir"]
-              server['syncDir'].each do |syncDir|
+            if server["ports"]
+                server['ports'].each do |ports|
+                    srv.vm.network "forwarded_port",
+                    guest: ports["guest"],
+                    host: ports["host"],
+                    auto_correct: true
+                end
+            end
 
-                  if syncDir["owner"] && syncDir["group"]
-                      srv.vm.synced_folder syncDir["host"],
-                      syncDir["guest"],
-                      owner: "#{syncDir["owner"]}",
-                      group: "#{syncDir["group"]}",
-                      mount_options:["dmode=#{syncDir["dmode"]}",
-                      "fmode=#{syncDir["fmode"]}"],
-                      create: true
-                  else
-                      srv.vm.synced_folder syncDir['host'],
+            # |
+            # | :::::: Folder Sync
+            # |
+
+            if server["syncDir"]
+                server['syncDir'].each do |syncDir|
+                    if syncDir["owner"] && syncDir["group"]
+                        srv.vm.synced_folder syncDir["host"],
+                        syncDir["guest"],
+                        owner: "#{syncDir["owner"]}",
+                        group: "#{syncDir["group"]}",
+                        mount_options:["dmode=#{syncDir["dmode"]}",
+                        "fmode=#{syncDir["fmode"]}"],
+                        create: true
+                    else
+                        srv.vm.synced_folder syncDir['host'],
                         syncDir['guest'],
                         create: true
-                  end
-              end
-          end
+                    end
+                end
+            end
 
 
 
@@ -88,18 +104,18 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 # | :::::: Vm Setup
 # | ············································································
 
-          srv.vm.provider :virtualbox do |vb|
-              vb.name     = server["name"]
-              vb.memory   = server["ram"]
-              if server["gui"]
-                  vb.gui      = server["gui"]
-              end
-              if server["cpus"]
-                  vb.cpus     = server["cpus"]
-              end
-              vb.customize ["modifyvm", :id, "--usb", "off"]
-              vb.customize ["modifyvm", :id, "--usbehci", "off"]
-          end
+            srv.vm.provider :virtualbox do |vb|
+                vb.name     = server["name"]
+                vb.memory   = server["ram"]
+                if server["gui"]
+                    vb.gui      = server["gui"]
+                end
+                if server["cpus"]
+                    vb.cpus     = server["cpus"]
+                end
+                vb.customize ["modifyvm", :id, "--usb", "off"]
+                vb.customize ["modifyvm", :id, "--usbehci", "off"]
+            end
 
 
 
@@ -107,64 +123,64 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 # | :::::: Provisions
 # | ············································································
 
-          # |
-          # | :::::: Provisions - Bash
-          # |
-          if server["bash"]
-              srv.vm.provision :shell, :path => server["bash"]
-          end
+            # |
+            # | :::::: Provisions - Bash
+            # |
+            if server["bash"]
+                srv.vm.provision :shell, :path => server["bash"]
+            end
 
-          # |
-          # | :::::: Provisions - Puppet
-          # |
-          if server["puppet"]
-              srv.vm.provision :puppet do |puppet|
-                 puppet.module_path    = "puppet/modules"
-                 puppet.manifests_path = "puppet/manifests"
-                 puppet.manifest_file  = server["puppet"]
-              end
-          end
+            # |
+            # | :::::: Provisions - Puppet
+            # |
+            if server["puppet"]
+                srv.vm.provision :puppet do |puppet|
+                    puppet.module_path    = "puppet/modules"
+                    puppet.manifests_path = "puppet/manifests"
+                    puppet.manifest_file  = server["puppet"]
+                end
+            end
 
-          # |
-          # | :::::: Provisions - Asible
-          # |
-          if server["ansible"]
-              srv.vm.provision:ansible do |ansible|
-                  if server["ansible"]["verbose"]
-                      ansible.verbose = server["ansible"]["verbose"]
-                  end
-                  if server["ansible"]["playbook"]
-                      ansible.playbook = server["ansible"]["playbook"]
-                  end
-                  if server["ansible"]["inventory_path"]
-                      ansible.inventory_path = server["ansible"]["inventory_path"]
-                  end
-                  if server["ansible"]["host_key_checking"]
-                      ansible.host_key_checking = server["ansible"]["host_key_checking"]
-                  end
-                  if server["ansible"]["limit"]
-                      ansible.limit = server["ansible"]["limit"]
-                  end
-              end
-              File.open('ansible/inventory' ,'w') do |f|
-                  f.write "[vagrant]\n"
-                  f.write "#{server["network"]["ip_private"]}\n"
-              end
-          end
+            # |
+            # | :::::: Provisions - Asible
+            # |
+            if server["ansible"]
+                srv.vm.provision:ansible do |ansible|
+                    if server["ansible"]["verbose"]
+                        ansible.verbose = server["ansible"]["verbose"]
+                    end
+                    if server["ansible"]["playbook"]
+                        ansible.playbook = server["ansible"]["playbook"]
+                    end
+                    if server["ansible"]["inventory_path"]
+                        ansible.inventory_path = server["ansible"]["inventory_path"]
+                    end
+                    if server["ansible"]["host_key_checking"]
+                        ansible.host_key_checking = server["ansible"]["host_key_checking"]
+                    end
+                    if server["ansible"]["limit"]
+                        ansible.limit = server["ansible"]["limit"]
+                    end
+                end
+                File.open('ansible/inventory' ,'w') do |f|
+                    f.write "[vagrant]\n"
+                    f.write "#{server["network"]["ip_private"]}\n"
+                end
+            end
 
 # | ············································································
 # | :::::: Vagrant Message
 # | ············································································
 
-            srv.vm.post_up_message = " \e[0;37m
+srv.vm.post_up_message = " \e[0;37m
 
 ················································································
-  VAGRANT VM
+VAGRANT VM
 ················································································
 
-  Vm Name    : #{server['name']}
-  Private ip : \e[0;33m#{server["network"]["ip_private"]}\e[0;37m
-  Public  ip : \e[0;33m#{server["network"]["ip_public"]}\e[0;37m
+Vm Name    : #{server['name']}
+Private ip : \e[0;33m#{server["network"]["ip_private"]}\e[0;37m
+Public  ip : \e[0;33m#{server["network"]["ip_public"]}\e[0;37m
 
 ················································································
 \e[32m"
