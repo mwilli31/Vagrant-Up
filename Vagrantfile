@@ -21,14 +21,9 @@ servers       = YAML.load_file("#{dir}/CONFIG.yaml")
 # |
 # | Set values for message
 # |
-if defined? server["private_network"]["ip_public"]
-    $ip_public = servers["private_network"]["ip_public"]
-end
-if defined? server["private_network"]["ip_private"]
-    $ip_private = servers["private_network"]["ip_private"]
-end
 
 
+print servers
 
 # | ············································································
 # | Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
@@ -202,8 +197,8 @@ VAGRANT VM
 ················································································
 
 Vm Name    : #{server['name']}
-Private ip : \e[0;33m#{$ip_private}\e[0;37m
-Public  ip : \e[0;33m#{$ip_public}\e[0;37m
+Private ip : \e[0;33m#{server["private_network"]["ip_private"]}\e[0;37m
+Public  ip : \e[0;33m#{server["private_network"]["ip_public"]}\e[0;37m
 
 ················································································
 \e[32m"
