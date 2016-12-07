@@ -16,15 +16,6 @@ dir = File.dirname(File.expand_path(__FILE__))
 # |
 servers       = YAML.load_file("#{dir}/CONFIG.yaml")
 
-# playbook_file = YAML.load_file("#{dir}/config.ansible.yml")
-
-# |
-# | Set values for message
-# |
-
-
-print servers
-
 # | ············································································
 # | Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 # | ············································································
