@@ -185,7 +185,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 end
                 File.open('ansible/inventory' ,'w') do |f|
                     f.write "[vagrant]\n"
-                    f.write "#{server["network"]["ip_private"]}\n"
+                    f.write "#{server["private_network"]["ip_private"]}\n"
                 end
             end
 
@@ -200,8 +200,8 @@ VAGRANT VM
 ················································································
 
 Vm Name    : #{server['name']}
-Private ip : \e[0;33m#{server["network"]["ip_private"]}\e[0;37m
-Public  ip : \e[0;33m#{server["network"]["ip_public"]}\e[0;37m
+Private ip : \e[0;33m#{server["private_network"]["ip_private"]}\e[0;37m
+Public  ip : \e[0;33m#{server["public_network"]["ip_public"]}\e[0;37m
 
 ················································································
 \e[32m"
