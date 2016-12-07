@@ -55,12 +55,33 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             # | :::::: Networdk
             # |
 
-            if server["network"]["ip_private"]
-                srv.vm.network "private_network", ip: server["network"]["ip_private"]
+            if server["private_network"]["ip_private"] && server["private_network"]["auto_config"]
+                srv.vm.network "private_network",
+                    ip:          server["private_network"]["ip_private"],
+                    auto_config: server["private_network"]["auto_config"]
+            elsif server["private_network"]["ip_private"]
+                srv.vm.network "private_network",
+                    ip:     server["private_network"]["ip_private"]
+            else server["private_network"]["type"]
+                srv.vm.network "private_network",
+                    type: server["private_network"]["type"]
             end
 
-            if server["network"]["ip_public"] && server["network"]["bridge"]
-                srv.vm.network "public_network", ip: server["network"]["ip_public"], :bridge => server["network"]["bridge"]
+
+            if defined? server["public_network"]["ip_public"]
+                if server["public_network"]["ip_public"] == "auto"
+                    srv.vm.network "public_network"
+                elsif server["public_network"]["ip_public"] == "true"
+                    srv.vm.network "public_network",
+                        use_dhcp_assigned_default_route: true
+                elsif server["public_network"]["ip_public"] && server["public_network"]["bridge"]
+                    srv.vm.network "public_network",
+                        ip:     server["public_network"]["ip_public"],
+                        bridge: server["public_network"]["bridge"]
+                else
+                    srv.vm.network "public_network",
+                        ip: server["public_network"]["ip_public"]
+                end
             end
 
             # |
