@@ -25,7 +25,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     servers["vms"].each do |server|
         config.vm.define server["name"] do |srv|
 
-
             # |
             # | :::::: Box
             # |
@@ -38,6 +37,66 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             if server["box_check_update"]
                 srv.vm.box_check_update = server["box_check_update"]
             end
+
+
+            # | ············································································
+            # | :::::: Vm Setup
+            # | ············································································
+
+            srv.vm.provider :virtualbox do |vb|
+                vb.name     = server["name"]
+
+                if server["gui"]
+                    vb.gui      = server["gui"]
+                end
+
+                vb.customize ["modifyvm", :id, "--usb", "off"]
+                vb.customize ["modifyvm", :id, "--usbehci", "off"]
+
+                # change the network card hardware for better performance
+                vb.customize ["modifyvm", :id, "--nictype1", "virtio" ]
+                vb.customize ["modifyvm", :id, "--nictype2", "virtio" ]
+
+                # suggested fix for slow network performance
+                # see https://github.com/mitchellh/vagrant/issues/1807
+                vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+                vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+
+
+                if server["ram"] = "auto"
+                    host = RbConfig::CONFIG['host_os']
+                    # Give VM 1/4 system memory & access to all cpu cores on the host
+                    if host =~ /darwin/
+                        mem = `sysctl -n hw.memsize`.to_i / 1024 / 1024 / 4
+                    elsif host =~ /linux/
+                        mem = `grep 'MemTotal' /proc/meminfo | sed -e 's/MemTotal://' -e 's/ kB//'`.to_i / 1024 / 4
+                    else # sorry Windows folks, I can't help you
+                        mem = 1024
+                    end
+                    vb.customize ["modifyvm", :id, "--memory", mem]
+                else
+                    vb.memory   = server["ram"]
+                end
+
+
+                if server["cpus"] = "auto"
+                    host = RbConfig::CONFIG['host_os']
+                    # Give VM 1/4 system memory & access to all cpu cores on the host
+                    if host =~ /darwin/
+                        cpus = `sysctl -n hw.ncpu`.to_i
+                    elsif host =~ /linux/
+                        cpus = `nproc`.to_i
+                    else # sorry Windows folks, I can't help you
+                        cpus = 2
+                    end
+                    vb.customize ["modifyvm", :id, "--cpus", cpus]
+                else
+                    vb.cpus   = server["cpus"]
+                end
+
+
+            end
+
 
             # |
             # | :::::: Networdk
@@ -109,23 +168,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
 
 
-# | ············································································
-# | :::::: Vm Setup
-# | ············································································
-
-            srv.vm.provider :virtualbox do |vb|
-                vb.name     = server["name"]
-                vb.memory   = server["ram"]
-                if server["gui"]
-                    vb.gui      = server["gui"]
-                end
-                if server["cpus"]
-                    vb.cpus     = server["cpus"]
-                end
-                vb.customize ["modifyvm", :id, "--usb", "off"]
-                vb.customize ["modifyvm", :id, "--usbehci", "off"]
-            end
-
 
 
 # | ············································································
@@ -138,6 +180,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             if server["bash"]
                 srv.vm.provision :shell, :path => server["bash"]
             end
+
+
+            srv.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "~/.ssh/me.pub"
+            srv.vm.boot_timeout = 240
 
             # |
             # | :::::: Provisions - Puppet
@@ -183,15 +229,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
 srv.vm.post_up_message = " \e[0;37m
 
-················································································
-VAGRANT VM
-················································································
+░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+░ VAGRANT VM                                       ░
+░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-Vm Name    : #{server['name']}
+Vm Name    : \e[0;33m#{server['name']}\e[0;37m
 Private ip : \e[0;33m#{server["private_network"]["ip_private"]}\e[0;37m
 Public  ip : \e[0;33m#{server["private_network"]["ip_public"]}\e[0;37m
 
-················································································
+░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 \e[32m"
 
         end

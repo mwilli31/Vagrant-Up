@@ -1,20 +1,32 @@
 ---
+# | ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+# | Fast Config - Ths is the most basic configuration for a fast deploy
+# | ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-# | ............................................................................
+# |                              ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+private_ip   : &private_ip      '10.0.0.10'
+vagrant_box  : &vagrant_box     'bento/ubuntu-16.04'
+
+machine_name : &machine_name    'vag-ubuntu'
+machine_ram  : &machine_ram     'auto'
+machine_cpu  : &machine_cpu     'auto'
+# |                              ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+
+# | ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 # | ### Config VirtualBox VM
-# | ............................................................................
+# | ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
 vms:
-  - name               : Ubuntu-Trusty64
-    box                : ubuntu/trusty64
+  - name               : *machine_name
+    box                : *vagrant_box
     # box_version        : 2.2.9
     box_check_update   : false
-    ram                : 1028
-    cpus               : 1
+    ram                : *machine_ram
+    cpus               : *machine_cpu
 
     # | ······ Defining Netword
     private_network :
-      ip_private       : 10.0.0.70
+      ip_private       : *private_ip
       # auto_config      : false
       # type             : dhcp
 
@@ -52,4 +64,4 @@ vms:
     # | ······ Bash provision
     # bash  : bash/init.sh
 
-# ..............................................................................
+# ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░..
