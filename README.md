@@ -13,7 +13,7 @@ You'll need to have the following prerequisites **installed** on your workstatio
 
 * Add an appropriate vagrant box (optional)
 ```bash
-    $ vagrant box add ubuntu/trusty64
+    $ vagrant box add bento/ubuntu-16.04
 ```
 
 ## Quick Start
@@ -23,6 +23,21 @@ You'll need to have the following prerequisites **installed** on your workstatio
   $ git clone git@github.com:Mayccoll/Vagrant-Up.git
   $ cd Vagrant-Up
   $ vagrant up
+```
+
+## Fast Configuration
+
+For fast configuration you can modify this variables in ```CONFIG.yml``` file.
+
+```ỳaml
+# |                              ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+private_ip   : &private_ip      '10.0.0.10'
+vagrant_box  : &vagrant_box     'bento/ubuntu-16.04'
+
+machine_name : &machine_name    'vag-ubuntu'
+machine_ram  : &machine_ram     'auto'
+machine_cpu  : &machine_cpu     'auto'
+# |                              ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 ```
 
 ## Files
@@ -52,8 +67,8 @@ There are one configuration files ```CONFIG.yml```
   > **./CONFIG.yaml**
 
 ```yaml
-- name               : Ubuntu-Trusty64
-  box                : ubuntu/trusty64
+- name               : Ubuntu-16.04
+  box                : bento/ubuntu-16.04
   box_check_update   : false
   ram                : 1028
   cpus               : 1
